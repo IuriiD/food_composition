@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+    {% block head %}
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <title>{% block title %}{% endblock %}</title>
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+        <!-- jQuery -->
+        <script src="{{ url_for('static', filename='js/jquery-2.1.4.min.js') }}"></script>
+        <!-- Popper.js -->
+        <script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
+        <!-- Bootstrap.js -->
+        <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    {% endblock %} <!-- head -->
+
+
+
+    <div class="container">
+        <div>
+            Header
+        </div>
+
+        <div>
+            {% with messages = get_flashed_messages(with_categories=True) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                    <div class="{{ category }}">
+                        {{ message|safe }}
+                    </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+        </div>
+
+        <div>
+            {% block body %}
+                <!-- Main contents -->
+
+                <!-- End of Main contents -->
+            {% endblock %}
+        </div>
+    </div>
