@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% from '_formhelpers.html' import render_field %}
+
+{% block title %}
+    Food Contents - Determine fats, carbohydrates and protein percentage content in food by image
+{% endblock %}
+
+{% block body %}
+
+    <img src="{{ image }}" class="img-fluid">
+
+    <form role="form" action="/" method="POST" enctype="multipart/form-data">
+      <dl>
+        {{ render_field(imageuploadform.image_file) }}
+      </dl>
+      <button type="submit" name="submit" class="btn btn-primary" value="Form sent">Submit</button>
+    </form>
+
+    <h1 class="display-4">{{ nutrients_percentage }}</h1>
+
+{% endblock %}

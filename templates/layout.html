@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+    <!-- Head -->
     {% block head %}
         <!-- Required meta tags -->
         <meta charset="utf-8">
@@ -15,32 +16,49 @@
         <script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
         <!-- Bootstrap.js -->
         <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
-    {% endblock %} <!-- head -->
+    {% endblock %}
+    <!-- Head END -->
 
 
-
+    <!-- Main container -->
     <div class="container">
-        <div>
-            Header
-        </div>
 
+        <h1 class="display-4">Food Contents (v.0.1)</h1>
+        <p class="lead">
+            Determine fats, carbohydrates and protein percentage content in food by image
+        </p>
+
+        <!-- Flashed messages -->
         <div>
             {% with messages = get_flashed_messages(with_categories=True) %}
               {% if messages %}
                 {% for category, message in messages %}
                     <div class="{{ category }}">
                         {{ message|safe }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
                 {% endfor %}
               {% endif %}
             {% endwith %}
         </div>
+        <!-- Flashed messages END -->
 
         <div>
             {% block body %}
                 <!-- Main contents -->
 
-                <!-- End of Main contents -->
+                <!-- Main contents END -->
             {% endblock %}
         </div>
+
+        <!-- Footer -->
+        <div class="lead" style="font-size: 12pt">
+            <br>
+            Powered by <a href="https://cloud.google.com/vision/">Google Vision API</a> and <a href="http://www.nutritionix.com/api">Nutritionix API</a>. Made by <a href="https://iuriid.github.io/" target="_blank">Iurii Dziuban</a> in Jan 2018
+        </div>
+        <!-- Footer END -->
+
     </div>
+    <!-- Main container END-->
