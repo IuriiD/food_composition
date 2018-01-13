@@ -1,19 +1,4 @@
-# To read next & just links
-# https://cloud.google.com/vision/docs/internet-detection
-# https://github.com/andresgarcia29/Python-Google-Vision-Api/blob/master/vision.py
-# https://developers.google.com/knowledge-graph/reference/rest/v1/
-
-# [ Tickets ]
-# Google Vision (GV) API - limit search from 10 to, say, 3-5 terms
-# Analyse/range/filter GV results using Google Graph (?)
-# Sort Nutrionix (Nutr) API results by score (https://developer.nutritionix.com/docs/v1_1#/nutritionix_api_v1_1)
-# Allow users to edit results of GV results (maybe with search from Nutr DB)
-# Sexy results presentation (dynamic and/or stylish)
-# Mobile platforms
-
-import io, requests, json
-from google.cloud import vision
-from google.cloud.vision import types
+import requests, json
 
 # Nutrionix API credentials
 from keys import nutrionix_app_id, nutrionix_app_key
@@ -22,32 +7,6 @@ from keys import nutrionix_app_id, nutrionix_app_key
 from parameters import products_n, how_many_terms
 # products_n (for eg., 3) - how many products (for eg., 'sausage', 'italian sausage', 'mettwurst' - determined with Google Vision API) we will be searching in Nutrionix DB
 # how_many_terms (for eg., 3) - how many items (spesific foods) we will be requesting for each food product (for eg. items 'Sausage, Peppers and Onions - 1 serving', 'Sausage - 2, links' for a product 'sausage)
-
-################ Google Vision ################
-def google_vision(file_name):
-    ''' Function takes an image (link to file on server, GC or on the web) and
-     returns labels for it using Google Vision API '''
-
-    label_list = {} # output list with terms got from GV (for eg., ['spaghetti', ['al dente'], ...]
-    vision_client = vision.ImageAnnotatorClient()
-    #file_name = 'static/uploads/pasta.jpg'
-
-    with io.open(file_name,'rb') as image_file:
-        content = image_file.read()
-
-    image = types.Image(content=content)
-
-    response = vision_client.label_detection(image=image)
-    labels = response.label_annotations
-
-    label_list = []
-    print('################ Google Vision ################')
-
-    for label in labels:
-        label_list.append(label.description)
-        print(label.description, label.score)
-    return label_list
-
 
 
 ################### Nutrionix ###################
@@ -166,7 +125,7 @@ def nutrionix_requests(label_list):
     (from https://developer.nutritionix.com/docs/v1_1):
 
 # Variant 1
-
+'''
 myquery1 = {
   "appId": nutrionix_app_id,
   "appKey":nutrionix_app_key,  
@@ -183,8 +142,15 @@ myquery1 = {
   }
 }
 
-n3 = requests.post('https://api.nutritionix.com/v1_1/search', data = myquery1)
+myquery3 = {"appId": nutrionix_app_id, "appKey": nutrionix_app_key, "query":"sausage", "limit": 3,   "sort":{"field":"_score", "order":"desc"}}
 
+n3 = requests.post('https://api.nutritionix.com/v1_1/search', data = myquery3)
+print(n3.text)
+
+some = json.loads(n3.text)
+print(some)
+
+'''
 # Variant 2: Nutritionix Search: You can use the default search where we apply boosting, and multi search factors to yield the most relevant results to your users.
 
 myquery2 = {

@@ -5,6 +5,7 @@
         <!-- Required meta tags -->
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
         <title>{% block title %}{% endblock %}</title>
 
@@ -19,13 +20,12 @@
     {% endblock %}
     <!-- Head END -->
 
-
     <!-- Main container -->
     <div class="container">
 
-        <h1 class="display-4">Food Contents (v.0.1)</h1>
+        <h1 class="display-4">Food Contents (v.0.2)</h1>
         <p class="lead">
-            Determine fats, carbohydrates and protein percentage content in food by image
+            Determine percentage content of fats, carbohydrates and proteins in food by image
         </p>
 
         <!-- Flashed messages -->
