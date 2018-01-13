@@ -7,6 +7,7 @@ from wtforms.validators import DataRequired, Length, URL
 from flask_wtf.csrf import CSRFProtect
 from random import randint
 from functions import google_vision, nutrionix_requests
+from parameters import products_n, how_many_terms
 #import plotly.plotly as py
 #import plotly.graph_objs as go
 from keys import flask_secret_key
@@ -38,31 +39,39 @@ def index():
 
         # POST-request
         if request.method == 'POST':
+            # If submit button under upload image/provide URL is clicked...
             if imageuploadform.imagesubmit.data:
-                if imageuploadform.validate():
-                    session['image'] = ''
-                    if request.files['image_file'].filename == '':
-                        flash('Looks like you didn\'t select any file to upload. Please choose one',
-                              'alert alert-warning alert-dismissible fade show')
-                        return render_template('index.html', imageuploadform=imageuploadform, image=image)
-                    if request.files['image_file'].filename[-4:].lower() != '.jpg':
-                        flash('Invalid file extension. Only .jpg/.jpeg images allowed at the moment',
-                              'alert alert-warning alert-dismissible fade show')
-                        return render_template('index.html', imageuploadform=imageuploadform, image=image)
-                    if imghdr.what(request.files['image_file']) != 'jpeg':
-                        flash(
-                            'Invalid image format. Are you sure that\'s really a .jpeg image (only .jpg/.jpeg images allowed at the moment)? Please choose a different one',
-                            'alert alert-warning alert-dismissible fade show')
-                        return render_template('index.html', imageuploadform=imageuploadform, image=image)
+                # If image URL field is not empty - check if it validates and if yes, get the URL
+                if imageuploadform.image_link.data != '':
+                    image_path = imageuploadform.image_link.data
+                    image = imageuploadform.image_link.data
+                    session['image'] = imageuploadform.image_link.data
+                # If image URL field is empty - check if image upload for validates, save file and get the path
+                else:
+                    if imageuploadform.validate():
+                        session['image'] = ''
+                        if request.files['image_file'].filename == '':
+                            flash('Looks like you didn\'t select any file to upload. Please choose one',
+                                  'alert alert-warning alert-dismissible fade show')
+                            return render_template('index.html', imageuploadform=imageuploadform, image=image)
+                        if request.files['image_file'].filename[-4:].lower() != '.jpg':
+                            flash('Invalid file extension. Only .jpg/.jpeg images allowed at the moment',
+                                  'alert alert-warning alert-dismissible fade show')
+                            return render_template('index.html', imageuploadform=imageuploadform, image=image)
+                        if imghdr.what(request.files['image_file']) != 'jpeg':
+                            flash(
+                                'Invalid image format. Are you sure that\'s really a .jpeg image (only .jpg/.jpeg images allowed at the moment)? Please choose a different one',
+                                'alert alert-warning alert-dismissible fade show')
+                            return render_template('index.html', imageuploadform=imageuploadform, image=image)
 
-                    path = 'uploads/' + request.files['image_file'].filename
-                    request.files['image_file'].save(os.path.join(app.static_folder, path))
-                    # avoid image caching
-                    image_b4_anticaching = 'static/uploads/' + request.files['image_file'].filename
-                    image = image_b4_anticaching + '?' + str(randint(1, 10000))
-                    session['image'] = image
+                        path = 'uploads/' + request.files['image_file'].filename
+                        request.files['image_file'].save(os.path.join(app.static_folder, path))
+                        # avoid image caching
+                        image_path = 'static/uploads/' + request.files['image_file'].filename
+                        image = image_path + '?' + str(randint(1, 10000))
+                        session['image'] = image
 
-                    labels = google_vision(image_b4_anticaching)[:3]
+                labels = google_vision(image_path)[:products_n]
 
             if customlabelform.labelsubmit.data and customlabelform.validate():
                 labels = [customlabelform.customlabel.data]

@@ -24,18 +24,22 @@ from parameters import products_n, how_many_terms
 # how_many_terms (for eg., 3) - how many items (spesific foods) we will be requesting for each food product (for eg. items 'Sausage, Peppers and Onions - 1 serving', 'Sausage - 2, links' for a product 'sausage)
 
 ################ Google Vision ################
-def google_vision(file_name):
+def google_vision(image_path):
     ''' Function takes an image (link to file on server, GC or on the web) and
      returns labels for it using Google Vision API '''
 
-    label_list = {} # output list with terms got from GV (for eg., ['spaghetti', ['al dente'], ...]
+    label_list = [] # output list with terms got from GV (for eg., ['spaghetti', 'al dente', ...]
     vision_client = vision.ImageAnnotatorClient()
-    #file_name = 'static/uploads/pasta.jpg'
 
-    with io.open(file_name,'rb') as image_file:
-        content = image_file.read()
+    if image_path.startswith('http') or image_path.startswith('gs:'):
+        image = types.Image()
+        image.source.image_uri = image_path
 
-    image = types.Image(content=content)
+    else:
+        with io.open(image_path, 'rb') as image_file:
+            content = image_file.read()
+
+        image = types.Image(content=content)
 
     response = vision_client.label_detection(image=image)
     labels = response.label_annotations
@@ -47,7 +51,6 @@ def google_vision(file_name):
         label_list.append(label.description)
         print(label.description, label.score)
     return label_list
-
 
 
 ################### Nutrionix ###################
