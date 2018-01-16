@@ -1,5 +1,13 @@
 # also started but didn't finish improved Nutr requests
 
+# [ Tickets ]
+# Google Vision (GV) API - limit search from 10 to, say, 3-5 terms
+# DONE: Analyse/range/filter GV results using Google Graph (?) - fail, can't be used for food
+# Sort Nutrionix (Nutr) API results by score (https://developer.nutritionix.com/docs/v1_1#/nutritionix_api_v1_1)
+# Allow users to edit results of GV results (maybe with search from Nutr DB)
+# Sexy results presentation (dynamic and/or stylish)
+# Mobile platforms
+
 import os, imghdr, json, plotly
 from flask import Flask, render_template, url_for, request, redirect, flash, session
 from wtforms import Form, FileField, StringField, SubmitField
@@ -33,13 +41,15 @@ def index():
     try:
         imageuploadform = UploadForm(request.form)
         customlabelform = CustomLabel(request.form)
+        nutrionix_data = {}
         nutrients_percentage = []
-        labels = ['nothing']
+        labels = ['No labels']
         image = '/static/uploads/default_340x340.jpg'
 
         # POST-request
         if request.method == 'POST':
-            # If submit button under upload image/provide URL is clicked...
+            # If 'Submit' button under upload image/provide URL is clicked...
+            session['products_n'] = products_n
             if imageuploadform.imagesubmit.data:
                 # If image URL field is not empty - check if it validates and if yes, get the URL
                 if imageuploadform.image_link.data != '':
@@ -73,11 +83,22 @@ def index():
 
                 labels = google_vision(image_path)[:products_n]
 
-            if customlabelform.labelsubmit.data and customlabelform.validate():
-                labels = [customlabelform.customlabel.data]
-                image = session['image']
+            # if 'Update' button under 'Incorrect labels? Please provide a better variant:' field is clicked
+            if customlabelform.labelsubmit.data:
+                invalidlabel = False
+                #flash('Update button hit')
+                if customlabelform.validate():
+                    #flash('Update form validated')
+                    labels = [customlabelform.customlabel.data]
+                    image = session['image']
+                    session['products_n'] = 1
+                else:
+                    #flash('Invalid label. Please enter a correct label (word 2-50 characters long)', 'alert alert-warning alert-dismissible fade show')
+                    image = session['image']
+                    return render_template('index.html', imageuploadform=imageuploadform, image=image, customlabelform=customlabelform, invalidlabel=True)
 
-            nutrients_percentage = nutrionix_requests(labels)
+            nutrionix_data = nutrionix_requests(labels)
+            nutrients_percentage = nutrionix_data['average_percents']
             #labels = google_vision(image_b4_anticaching) # temp
             #nutrients_percentage = labels # temp
 
@@ -92,6 +113,7 @@ def index():
                         ),
                     ],
                     layout=dict(
+                        title='Ratio of fats, carbohydrates and proteins by weight',
                         width=660, height=450,
                         modebar=False,
                     )
@@ -104,7 +126,7 @@ def index():
 
             #flash(labels, 'alert alert-success alert-dismissible fade show')
             #flash('Image successfully uploaded', 'alert alert-success alert-dismissible fade show')
-            return render_template('index.html', imageuploadform=imageuploadform, image=image, nutrients_percentage=nutrients_percentage, labels=labels, customlabelform=customlabelform, ids=ids, graphJSON=graphJSON)
+            return render_template('index.html', imageuploadform=imageuploadform, image=image, nutrients_percentage=nutrients_percentage, labels=labels, customlabelform=customlabelform, ids=ids, graphJSON=graphJSON, nutrionix_data=nutrionix_data)
 
         # GET request
         #image = default_img

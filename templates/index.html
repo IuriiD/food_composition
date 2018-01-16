@@ -7,19 +7,42 @@
 
 {% block body %}
 
-    <img src="{{ image }}" class="img-fluid rounded" style="max-height: 460px, padding-bottom: 10px" name="uploaded_image">
+    <img src="{{ image }}" class="img-fluid rounded" style="max-height: 460px, margin-bottom: 5px" name="uploaded_image">
 
-    {% if nutrients_percentage|length>0 %}
+    {% if nutrients_percentage|length>0 or invalidlabel %}
         <p style="padding-top: 5pt">
             <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
             What's on the image
             </button>
         </p>
-        <div class="collapse" id="collapseExample">
+        <div class="collapse{% if invalidlabel %}.show{% endif %}" id="collapseExample">
             <div class="card card-body">
-                {% for label in labels %}
-                    <h1 class="display-4">{{ label }}</h1>
-                {% endfor %}
+
+                {% if not invalidlabel %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Label</th>
+                                <th scope="col">Food Product</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for label in labels %}
+                                <tr>
+                                    <td>
+                                        {{ label }}
+                                    </td>
+                                    <td>
+                                        {% for food_item in nutrionix_data[label] %}
+                                            <a href="https://www.nutritionix.com/food/{{ food_item[1] }}">{{ food_item[1] }}</a>
+                                            <br>
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
 
                 <span class="lead">
                     <strong>
@@ -27,7 +50,7 @@
                     </strong>
                 </span>
 
-                <form role="form" action="/" method="POST" enctype="multipart/form-data">
+                <form role="form" action="/" method="POST">
                     <dl>
                         {{ customlabelform.csrf_token }}
                         {{ render_field(customlabelform.customlabel) }}
@@ -38,29 +61,31 @@
             </div>
         </div>
 
-        <!-- Plot.ly chart -->
-        {% for id in ids %}
-            <div id="{{id}}"></div>
-        {% endfor %}
+        {% if not invalidlabel %}
+            <!-- Plot.ly chart -->
+            {% for id in ids %}
+                <div id="{{id}}"></div>
+            {% endfor %}
 
-        <!-- For some reason charts fail to draw when uploading plotly js and/or the following script via layout.html template file-->
-        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-          <!-- D3.js -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
-          <!-- jQuery -->
-        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-        <!-- Plotly.js -->
-        <script src="https://d14fo0winaifog.cloudfront.net/plotly-basic.js"></script>
-        <script type="text/javascript">
-            var graphs = {{graphJSON | safe}};
-            var ids = {{ids | safe}};
-            for(var i in graphs) {
-                Plotly.plot(ids[i], // the ID of the div, created above
-                            graphs[i].data,
-                            graphs[i].layout || {});
-            }
-        </script>
-        <!-- Plot.ly chart END -->
+            <!-- For some reason charts fail to draw when uploading plotly js and/or the following script via layout.html template file-->
+            <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+              <!-- D3.js -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+              <!-- jQuery -->
+            <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+            <!-- Plotly.js -->
+            <script src="https://d14fo0winaifog.cloudfront.net/plotly-basic.js"></script>
+            <script type="text/javascript">
+                var graphs = {{graphJSON | safe}};
+                var ids = {{ids | safe}};
+                for(var i in graphs) {
+                    Plotly.plot(ids[i], // the ID of the div, created above
+                                graphs[i].data,
+                                graphs[i].layout || {});
+                }
+            </script>
+            <!-- Plot.ly chart END -->
+        {% endif %}
     {% endif %}
 
     <form role="form" action="/" method="POST" enctype="multipart/form-data">

@@ -3,15 +3,10 @@
 # https://github.com/andresgarcia29/Python-Google-Vision-Api/blob/master/vision.py
 # https://developers.google.com/knowledge-graph/reference/rest/v1/
 
-# [ Tickets ]
-# Google Vision (GV) API - limit search from 10 to, say, 3-5 terms
-# Analyse/range/filter GV results using Google Graph (?)
-# Sort Nutrionix (Nutr) API results by score (https://developer.nutritionix.com/docs/v1_1#/nutritionix_api_v1_1)
-# Allow users to edit results of GV results (maybe with search from Nutr DB)
-# Sexy results presentation (dynamic and/or stylish)
-# Mobile platforms
+
 
 import io, requests, json
+from flask import session, flash
 from google.cloud import vision
 from google.cloud.vision import types
 
@@ -55,11 +50,13 @@ def google_vision(image_path):
 
 ################### Nutrionix ###################
 def nutrionix_requests(label_list):
-    ''' Function takes a list of products (got using Google Vision API, for eg., 'sausage') and for [products_n] products from this list tries to find foods in Nutrionix DB.
+    ''' Function takes a list of products' labels got using Google Vision API or a label submitted by user and for [products_n] products (in case of user's label products_n=1)
+        from this list tries to find foods in Nutrionix DB.
         For each food product (for eg., 'sausage') [how_many_terms] quantity of items are requested (for eg., items 'Sausage, Peppers and Onions - 1 serving', 'Sausage - 2, links' for a term 'sausage)
         For each food item (for eg., 'Sausage - 2, links') id, name, [relevance] score and abs. quantity (in grams) of fats, carbohydrates and proteins per serving is requested
         Then percentages of fats, carbohydrates and proteins in each food item are calculated and their average values in all food items analysed.
-        Returns 3 percentages (for fats, carbohydrates and proteins)
+        Returns a dictionary with 3 percentages (for fats, carbohydrates and proteins) and also containing all 'raw' data (food labels, products names, products IDs, fat/carb/prot percent) -
+        see structure of 'main_output' dictionary
     '''
 
     # Structure of the dictionary ('main_output') with data from Nutrionix (example) which is used to calculate final average percentages of fats, carbohydrates and proteins
@@ -79,6 +76,7 @@ def nutrionix_requests(label_list):
 
     print('################ Nutrionix ################')
     main_output = {}
+    products_n = session['products_n']
     for n in range(products_n):
         # Get IDs for items for each product
         # Request 'hits' (foods) list
@@ -98,6 +96,7 @@ def nutrionix_requests(label_list):
             name = hit['fields']['item_name']
             id_score = hit['_score']
             #print(('%s - %s - %s') % (id, name, id_score))
+            #flash('<a href="https://www.nutritionix.com/food/' + name + '">' + name + '</a>', 'alert alert-warning alert-dismissible fade show')
 
             # For each food ID request nutrition data (fats, carbohydrates and proteins content in grams)
             n2 = requests.get('https://api.nutritionix.com/v1_1/item?id=' + str(id) + '&appId=' + nutrionix_app_id + '&appKey=' + nutrionix_app_key)
@@ -161,7 +160,9 @@ def nutrionix_requests(label_list):
     print('Carbohydrates %: ', av_carbo)
     print('Proteins %: ', av_prot)
 
-    return([round(av_fat, 2), round(av_carbo, 2), round(av_prot, 2)])
+    main_output['average_percents'] = [round(av_fat, 2), round(av_carbo, 2), round(av_prot, 2)]
+
+    return(main_output)
 
 #print(nutrionix_requests(google_vision('static/uploads/pasta.jpg')))
 
