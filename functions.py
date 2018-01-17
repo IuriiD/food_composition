@@ -37,10 +37,14 @@ def google_vision(image_path):
         image = types.Image(content=content)
 
     response = vision_client.label_detection(image=image)
+
     labels = response.label_annotations
 
     label_list = []
     print('################ Google Vision ################')
+    print(response)
+    print(response.error)
+    print(response.error.message)
 
     for label in labels:
         label_list.append(label.description)

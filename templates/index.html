@@ -88,14 +88,46 @@
         {% endif %}
     {% endif %}
 
-    <form role="form" action="/" method="POST" enctype="multipart/form-data">
-        <dl>
-            {{ imageuploadform.csrf_token }}
-            {{ render_field(imageuploadform.image_file) }}
-            or paste image URL
-            {{ render_field(imageuploadform.image_link) }}
-            {{ imageuploadform.imagesubmit(class_="btn btn-primary") }}
-        </dl>
-    </form>
+    <!-- Image upload/paste URL form -->
+    <div id="exampleAccordion" data-children=".item">
+        <div class="item">
+            <a data-toggle="collapse" data-parent="#exampleAccordion" href="#exampleAccordion2" role="button" aria-expanded="false" aria-controls="exampleAccordion2">
+                <strong>
+                    Paste image URL
+                </strong>
+            </a>
+            or
+            <a data-toggle="collapse" data-parent="#exampleAccordion" href="#exampleAccordion1" role="button" aria-expanded="true" aria-controls="exampleAccordion1">
+                <strong>
+                    Upload image
+                </strong>
+            </a>
+            <div id="exampleAccordion1" class="collapse" role="tabpanel">
+                <p class="mb-3">
+                    <form role="form" action="/" method="POST" enctype="multipart/form-data">
+                        <dl>
+                            {{ imageuploadform.csrf_token }}
+                            {{ render_field(imageuploadform.image_file) }}
+                            {{ imageuploadform.imagesubmit(class_="btn btn-primary") }}
+                        </dl>
+                    </form>
+                </p>
+            </div>
+        </div>
+        <div class="item">
+            <div id="exampleAccordion2" class="collapse show" role="tabpanel">
+                <p class="mb-3">
+                    <form role = "form" action = "/" method = "POST">
+                        <dl>
+                            {{photourlform.csrf_token}}
+                            {{render_field(photourlform.image_link)}}
+                            {{photourlform.image_link_submit(class_="btn btn-primary")}}
+                        </dl>
+                    </form>
+                </p>
+            </div>
+        </div>
+    </div>
+    <!-- Image upload/paste URL form END -->
 
 {% endblock %}

@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% from '_formhelpers.html' import render_field %}
+
+{% block title %}
+    Food Contents - Determine fats, carbohydrates and protein percentage content in food by image
+{% endblock %}
+
+{% block body %}
+<div>
+    <form role="form" action="/" method="POST">
+        <dl>
+            {{ photourlform.csrf_token }}
+            {{ render_field(photourlform.image_link) }}
+            {{ photourlform.image_link_submit(class_="btn btn-primary") }}
+        </dl>
+    </form>
+</div>
+
+
+
+<div>
+    <form role="form" action="/" method="POST">
+        <dl>
+            {{ customlabelform.csrf_token }}
+            {{ render_field(customlabelform.customlabel) }}
+            {{ customlabelform.labelsubmit(class_="btn btn-primary") }}
+        </dl>
+    </form>
+</div>
+
+{% endblock %}
