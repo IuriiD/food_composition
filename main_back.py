@@ -171,3 +171,19 @@ def not_found(e):
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
 # hello
+
+'''
+if request.files['image_file'].filename == '':
+    flash('Looks like you didn\'t select any image to analyse. Please choose one',
+          'alert alert-warning alert-dismissible fade show')
+    return render_template('index.html', imageuploadform=imageuploadform, photourlform=photourlform, image=image)
+if request.files['image_file'].filename[-4:].lower() != '.jpg':
+    flash('Invalid file extension. Only .jpg images allowed at the moment',
+          'alert alert-warning alert-dismissible fade show')
+    return render_template('index.html', imageuploadform=imageuploadform, photourlform=photourlform, image=image)
+if imghdr.what(request.files['image_file']) != 'jpeg':
+    flash(
+        'Invalid image format. Are you sure that\'s really a .jpeg image (only .jpg images allowed at the moment)? Please choose a different one',
+        'alert alert-warning alert-dismissible fade show')
+    return render_template('index.html', imageuploadform=imageuploadform, photourlform=photourlform, image=image)
+'''

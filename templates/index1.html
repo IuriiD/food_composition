@@ -17,15 +17,4 @@
 </div>
 
 
-
-<div>
-    <form role="form" action="/" method="POST">
-        <dl>
-            {{ customlabelform.csrf_token }}
-            {{ render_field(customlabelform.customlabel) }}
-            {{ customlabelform.labelsubmit(class_="btn btn-primary") }}
-        </dl>
-    </form>
-</div>
-
 {% endblock %}

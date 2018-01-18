@@ -3,9 +3,10 @@
 # https://github.com/andresgarcia29/Python-Google-Vision-Api/blob/master/vision.py
 # https://developers.google.com/knowledge-graph/reference/rest/v1/
 
-
-
-import io, requests, json
+import io
+import requests
+import json
+import mimetypes
 from flask import session, flash
 from google.cloud import vision
 from google.cloud.vision import types
@@ -15,8 +16,44 @@ from keys import nutrionix_app_id, nutrionix_app_key
 
 # Analysis parameters
 from parameters import products_n, how_many_terms
-# products_n (for eg., 3) - how many products (for eg., 'sausage', 'italian sausage', 'mettwurst' - determined with Google Vision API) we will be searching in Nutrionix DB
-# how_many_terms (for eg., 3) - how many items (spesific foods) we will be requesting for each food product (for eg. items 'Sausage, Peppers and Onions - 1 serving', 'Sausage - 2, links' for a product 'sausage)
+
+VALID_IMAGE_EXTENSIONS = [
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".gif",
+    "bmp"
+]
+
+VALID_IMAGE_MIMETYPES = [
+    "image"
+]
+
+################ Image URL validation ################
+# Validating the URL’s extension
+def valid_url_extension(url, extension_list=VALID_IMAGE_EXTENSIONS):
+    '''
+    A simple method to make sure the URL the user has supplied has
+    an image-like file at the tail of the path
+    '''
+    return any([url.endswith(e) for e in extension_list])
+
+# Validating the URL mimetype
+def valid_url_mimetype(url, mimetype_list=VALID_IMAGE_MIMETYPES):
+    # http://stackoverflow.com/a/10543969/396300
+    mimetype, encoding = mimetypes.guess_type(url)
+    if mimetype:
+        return any([mimetype.startswith(m) for m in mimetype_list])
+    else:
+        return False
+
+# Validating that the image exists on the server
+def image_exists(url):
+    try:
+        r = requests.get(url)
+    except:
+        return False
+    return r.status_code == 200
 
 ################ Google Vision ################
 def google_vision(image_path):
