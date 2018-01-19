@@ -55,10 +55,14 @@ def image_exists(url):
         return False
     return r.status_code == 200
 
-################ Google Vision ################
+###############################################
+##               Google Vision               ##
+###############################################
 def google_vision(image_path):
-    ''' Function takes an image (link to file on server, GC or on the web) and
-     returns labels for it using Google Vision API '''
+    '''
+        Function takes an image (link to file on server, GC or on the web) and
+        returns labels for it using Google Vision API
+    '''
 
     label_list = [] # output list with terms got from GV (for eg., ['spaghetti', 'al dente', ...]
     vision_client = vision.ImageAnnotatorClient()
@@ -77,11 +81,7 @@ def google_vision(image_path):
 
     labels = response.label_annotations
 
-    label_list = []
     print('################ Google Vision ################')
-    print(response)
-    print(response.error)
-    print(response.error.message)
 
     for label in labels:
         label_list.append(label.description)
@@ -126,6 +126,7 @@ def nutrionix_requests(label_list):
         #print(ids)
 
         # Get foods id, name, [relevance] score
+        #total_hits = ids['total_hits']
         hits = ids['hits']
         sub_output = []  # data for specific food item ID, [id, name, id_score, fats%, carbohydrates%, proteins%]
         for hit in hits:

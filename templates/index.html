@@ -44,11 +44,19 @@
                     </table>
                 {% endif %}
 
-                <span class="lead">
-                    <strong>
-                        Incorrect labels? Please provide a better variant:
-                    </strong>
-                </span>
+                {% if invalidlabel %}
+                    <h4>
+                        <strong>
+                            Failed to find any food products for <i>{% for label in labels %}{{ label }}{% endfor %}</i>. <br>Maybe you'll provide another label?
+                        </strong>
+                    </h4>
+                {% else %}
+                    <span class="lead">
+                        <strong>
+                            Incorrect labels? Please provide a better variant:
+                        </strong>
+                    </span>
+                {% endif %}
 
                 <form role="form" action="/" method="POST">
                     <dl>

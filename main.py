@@ -1,15 +1,17 @@
 # [ Tickets ]
+# Chatbot and\or Mobile platforms
+
 # Validate img URL: https://timmyomahony.com/blog/upload-and-validate-image-from-url-in-django/
 # Google Vision (GV) API - limit search from 10 to, say, 3-5 terms
 # Sort Nutrionix (Nutr) API results by score (https://developer.nutritionix.com/docs/v1_1#/nutritionix_api_v1_1)
 # Sexy results presentation (dynamic and/or stylish)
-# Chatbot and\or Mobile platforms
 # also started but didn't finish improved Nutr requests
 # DONE: Analyse/range/filter GV results using Google Graph (?) - fail, can't be used for food
 # DONE: Allow users to edit results of GV results (maybe with search from Nutr DB)
+# energy value
 
 import os
-import imghdr # delete after update
+import imghdr  # delete after update
 import json
 import plotly
 from flask import Flask, render_template, url_for, request, redirect, flash, session
@@ -21,7 +23,6 @@ from functions import google_vision, nutrionix_requests, valid_url_extension, va
 from parameters import products_n, how_many_terms
 from keys import flask_secret_key
 
-
 app = Flask(__name__)
 csrf = CSRFProtect(app)
 csrf.init_app(app)
@@ -29,7 +30,8 @@ app.secret_key = flask_secret_key
 
 
 class UploadForm(Form):
-    image_file = FileField('Upload an image', [validators.DataRequired('Looks like you didn\'t select any image to analyse. Please choose one')])
+    image_file = FileField('Upload an image', [
+        validators.DataRequired('Looks like you didn\'t select any image to analyse. Please choose one')])
     imagesubmit = SubmitField('Submit')
 
 
@@ -39,7 +41,8 @@ class ImageUrl(Form):
 
 
 class CustomLabel(Form):
-    customlabel = StringField('', [validators.DataRequired('Please enter some food label'), validators.Length(2, 50, 'Food label should be a word from 2 to 50 characters long')])
+    customlabel = StringField('', [validators.DataRequired('Please enter some food label'), validators.Length(2, 50,
+                                                                                                              'Food label should be a word from 2 to 50 characters long')])
     labelsubmit = SubmitField('Update')
 
 
@@ -84,7 +87,7 @@ def index():
                             'Invalid image extension (not ".jpg", ".jpeg", ".png", ".gif" or "bmp") or invalid image format',
                             'alert alert-warning alert-dismissible fade show')
                         return render_template('index.html', imageuploadform=imageuploadform, photourlform=photourlform,
-                                       image=image)
+                                               image=image)
                 else:
                     return render_template('index.html', imageuploadform=imageuploadform, photourlform=photourlform,
                                            image=image)
@@ -99,13 +102,15 @@ def index():
                     # 2. Validating the URL mimetype
                     # 3. Validating that the image exists on the server (+ maybe it's <4Mb (Google Vision API's limit)
                     url_entered = photourlform.image_link.data
-                    if valid_url_extension(url_entered) and valid_url_mimetype(url_entered) and image_exists(url_entered):
+                    if valid_url_extension(url_entered) and valid_url_mimetype(url_entered) and image_exists(
+                            url_entered):
                         image_path = photourlform.image_link.data
                         image = photourlform.image_link.data
                         session['image'] = photourlform.image_link.data
                     else:
-                        flash('Image can\'t be analysed because of invalid file extension (not ".jpg", ".jpeg", ".png", ".gif" or "bmp"), invalid format or image does not exist on server',
-                              'alert alert-warning alert-dismissible fade show')
+                        flash(
+                            'Image can\'t be analysed because of invalid file extension (not ".jpg", ".jpeg", ".png", ".gif" or "bmp"), invalid format or image does not exist on server',
+                            'alert alert-warning alert-dismissible fade show')
                         return render_template('index.html', imageuploadform=imageuploadform, photourlform=photourlform,
                                                image=image)
                 else:
@@ -116,7 +121,7 @@ def index():
             # So now we have a link to image (uploaded to server or via remote URL) in variable 'image_path')
             # Let's get labels from Google Vision API
             # Errors may be returned at this step
-            #labels = google_vision(image_path)[:products_n]
+            # labels = google_vision(image_path)[:products_n]
 
             # If 'Update' button under 'Incorrect labels? Please provide a better variant:' field is clicked
             if customlabelform.labelsubmit.data:
@@ -130,7 +135,8 @@ def index():
                     # uploaded image but without any calculations for it (as they are supposed to be nonrelevant
                     # if user corrects labels
                     image = session['image']
-                    return render_template('index.html', imageuploadform=imageuploadform, photourlform=photourlform, image=image, customlabelform=customlabelform, invalidlabel=True)
+                    return render_template('index.html', imageuploadform=imageuploadform, photourlform=photourlform,
+                                           image=image, customlabelform=customlabelform, invalidlabel=True)
             else:
                 labels = google_vision(image_path)[:products_n]
 
@@ -138,39 +144,51 @@ def index():
             # Let's get data for nutrients from Nutrionix.com API
             nutrionix_data = nutrionix_requests(labels)
 
-            # Retrieve average percentages of fats/carbohydrates/proteins
-            nutrients_percentage = nutrionix_data['average_percents']
-            #labels = google_vision(image_b4_anticaching) # temp
-            #nutrients_percentage = labels # temp
+            #flash(nutrionix_data, 'alert alert-warning alert-dismissible fade show')
 
-            # [ Plot.ly charts ]
-            graphs = [
-                dict(
-                    data=[
-                        dict(
-                            values=nutrients_percentage,
-                            labels=['Fats','Carbohydrates','Proteins'],
-                            type='pie',
-                        ),
-                    ],
-                    layout=dict(
-                        title='Ratio of fats, carbohydrates and proteins by weight',
-                        width=660, height=450,
-                        modebar=False,
+            # If no foods can be found for label(-s) in Nutrionix DB, set invalidlabel flag to True and don't create a chart
+            if (nutrionix_data['average_percents'][0] + nutrionix_data['average_percents'][1] +
+                    nutrionix_data['average_percents'][0]) == 0:
+                return render_template('index.html', imageuploadform=imageuploadform, image=image,
+                                       invalidlabel=True, labels=labels, customlabelform=customlabelform,
+                                       nutrionix_data=nutrionix_data, photourlform=photourlform)
+            else:
+                # Retrieve average percentages of fats/carbohydrates/proteins
+                nutrients_percentage = nutrionix_data['average_percents']
+                # labels = google_vision(image_b4_anticaching) # temp
+                # nutrients_percentage = labels # temp
+
+                # [ Plot.ly charts ]
+                graphs = [
+                    dict(
+                        data=[
+                            dict(
+                                values=nutrients_percentage,
+                                labels=['Fats', 'Carbohydrates', 'Proteins'],
+                                type='pie',
+                            ),
+                        ],
+                        layout=dict(
+                            title='Ratio of fats, carbohydrates and proteins by weight',
+                            width=660, height=450,
+                            modebar=False,
+                        )
                     )
-                )
-            ]
+                ]
 
-            ids = ['graph-{}'.format(i) for i, _ in enumerate(graphs)]
-            graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
-            # [ Plot.ly charts END ]
+                ids = ['graph-{}'.format(i) for i, _ in enumerate(graphs)]
+                graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
+                # [ Plot.ly charts END ]
 
-            #flash(labels, 'alert alert-success alert-dismissible fade show')
-            #flash('Image successfully uploaded', 'alert alert-success alert-dismissible fade show')
-            return render_template('index.html', imageuploadform=imageuploadform, image=image, nutrients_percentage=nutrients_percentage, labels=labels, customlabelform=customlabelform, ids=ids, graphJSON=graphJSON, nutrionix_data=nutrionix_data, photourlform=photourlform)
+                # flash(labels, 'alert alert-success alert-dismissible fade show')
+                # flash('Image successfully uploaded', 'alert alert-success alert-dismissible fade show')
+                return render_template('index.html', imageuploadform=imageuploadform, image=image, invalidlabel=False,
+                                       nutrients_percentage=nutrients_percentage, labels=labels,
+                                       customlabelform=customlabelform, ids=ids, graphJSON=graphJSON,
+                                       nutrionix_data=nutrionix_data, photourlform=photourlform)
 
         # GET request
-        #image = default_img
+        # image = default_img
         return render_template('index.html', imageuploadform=imageuploadform, photourlform=photourlform, image=image)
 
     except Exception as e:
@@ -178,12 +196,14 @@ def index():
         flash(e, 'alert alert-danger')
         return redirect(url_for('index'))
 
+
 @app.errorhandler(404)
 @csrf.exempt
 def not_found(e):
     return render_template('404.html')
 
+
 # Run Flask server (host='0.0.0.0' - for Vagrant)
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
-# hello
+    # hello
