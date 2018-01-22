@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 # To read next & just links
 # https://cloud.google.com/vision/docs/internet-detection
 # https://github.com/andresgarcia29/Python-Google-Vision-Api/blob/master/vision.py
