@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 # [ Tickets ]
 # Chatbot and\or Mobile platforms
 
@@ -11,7 +14,6 @@
 # energy value
 
 import os
-import imghdr  # delete after update
 import json
 import plotly
 from flask import Flask, render_template, url_for, request, redirect, flash, session
@@ -19,8 +21,9 @@ from flask_wtf import Form
 from wtforms import FileField, StringField, SubmitField, validators
 from flask_wtf.csrf import CSRFProtect
 from random import randint
+
 from functions import google_vision, nutrionix_requests, valid_url_extension, valid_url_mimetype, image_exists
-from parameters import products_n, how_many_terms
+from parameters import products_n
 from keys import flask_secret_key
 
 app = Flask(__name__)
@@ -118,11 +121,6 @@ def index():
                     return render_template('index.html', imageuploadform=imageuploadform, photourlform=photourlform,
                                            image=image)
 
-            # So now we have a link to image (uploaded to server or via remote URL) in variable 'image_path')
-            # Let's get labels from Google Vision API
-            # Errors may be returned at this step
-            # labels = google_vision(image_path)[:products_n]
-
             # If 'Update' button under 'Incorrect labels? Please provide a better variant:' field is clicked
             if customlabelform.labelsubmit.data:
                 invalidlabel = False
@@ -138,6 +136,7 @@ def index():
                     return render_template('index.html', imageuploadform=imageuploadform, photourlform=photourlform,
                                            image=image, customlabelform=customlabelform, invalidlabel=True)
             else:
+                # Main route - get labels from Google Vision API using a link to image (uploaded to server or via remote URL) in variable 'image_path')
                 labels = google_vision(image_path)[:products_n]
 
             # So now we have labels (either from image>GoogleVisionAPI or 1 label entered manually)
@@ -155,8 +154,6 @@ def index():
             else:
                 # Retrieve average percentages of fats/carbohydrates/proteins
                 nutrients_percentage = nutrionix_data['average_percents']
-                # labels = google_vision(image_b4_anticaching) # temp
-                # nutrients_percentage = labels # temp
 
                 # [ Plot.ly charts ]
                 graphs = [
