@@ -25,7 +25,8 @@ VALID_IMAGE_EXTENSIONS = [
     ".jpeg",
     ".png",
     ".gif",
-    "bmp"
+    ".bmp",
+    ".JPG", ".JPEG", ".PNG", ".GIF", "BMP"
 ]
 
 VALID_IMAGE_MIMETYPES = [

@@ -9,11 +9,11 @@ Additionally created a simple chatbot on <a href="https://dialogflow.com/">dialo
 Topics learnt/covered in this project: Flask, REST API (Google Cloud Vision API, Nutrionix API), bootstrap, plot.ly, deployment to server, dialogflow, Heroku.
 
 <p>
-    <a href="https://iuriid.github.io/img/fc-1.jpg" target="_blank"><img src="https://iuriid.github.io/img/fc-1.jpg" class="img-fluid img-thumbnail" style="max-width: 350px"></a>
+    <a href="https://iuriid.github.io/public/img/fc-1.jpg" target="_blank"><img src="https://iuriid.github.io/public/img/fc-1.jpg" class="img-fluid img-thumbnail" style="max-width: 350px"></a>
 </p>
 <p>
-    <a href="https://iuriid.github.io/img/fc-2.jpg" target="_blank"><img src="https://iuriid.github.io/img/fc-2.jpg" class="img-fluid img-thumbnail" style="max-width: 350px"></a>
+    <a href="https://iuriid.github.io/public/img/fc-2.jpg" target="_blank"><img src="https://iuriid.github.io/public/img/fc-2.jpg" class="img-fluid img-thumbnail" style="max-width: 350px"></a>
 </p>
 <p>
-    <a href="https://iuriid.github.io/img/fc-3.jpg" target="_blank"><img src="https://iuriid.github.io/img/fc-3.jpg" class="img-fluid img-thumbnail" style="max-width: 350px"></a>
+    <a href="https://iuriid.github.io/public/img/fc-3.jpg" target="_blank"><img src="https://iuriid.github.io/public/img/fc-3.jpg" class="img-fluid img-thumbnail" style="max-width: 350px"></a>
 </p>
